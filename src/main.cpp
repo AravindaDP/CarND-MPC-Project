@@ -74,17 +74,19 @@ int main() {
           state << 0, 0, 0, v, cte, epsi;
 
           /**
-           * TODO: Calculate steering angle and throttle using MPC.
+           * Calculate steering angle and throttle using MPC.
            * Both are in between [-1, 1].
            */
-          double steer_value = j[1]["steering_angle"]; // current steer (rad)
-          double throttle_value = j[1]["throttle"]; // current throttle [-1, 1]
+          auto vars = mpc.Solve(state, coeffs);
+
+          double steer_value = vars[0];
+          double throttle_value = vars[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the 
           //   steering value back. Otherwise the values will be in between 
           //   [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          msgJson["steering_angle"] = steer_value/deg2rad(25);
+          msgJson["steering_angle"] = -steer_value/(deg2rad(25));
           msgJson["throttle"] = throttle_value;
 
           // Display the MPC predicted trajectory 
@@ -92,10 +94,18 @@ int main() {
           vector<double> mpc_y_vals;
 
           /**
-           * TODO: add (x,y) points to list here, points are in reference to 
-           *   the vehicle's coordinate system the points in the simulator are 
-           *   connected by a Green line
+           * Add (x,y) points to list here, points are in reference to 
+           * the vehicle's coordinate system the points in the simulator are 
+           * connected by a Green line
            */
+          for(int i = 2; i < vars.size(); i++){
+            if(i%2 == 0){
+              mpc_x_vals.push_back(vars[i]);
+            }
+            else{
+              mpc_y_vals.push_back(vars[i]);
+            }
+          }
 
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
