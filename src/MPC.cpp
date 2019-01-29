@@ -13,7 +13,7 @@ using Eigen::VectorXd;
  * The timestep length and duration
  */
 size_t N = 10;
-double dt = 0.1;
+double dt = 0.15;
 
 // This value assumes the model presented in the classroom is used.
 //
@@ -29,7 +29,7 @@ const double Lf = 2.67;
 
 // NOTE: feel free to play around with this
 // or do something completely different
-double ref_v = 100;
+double ref_v = 45;
 
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
@@ -67,15 +67,15 @@ class FG_eval {
 
     // The part of the cost based on the reference state.
     for (int t = 0; t < N; t++) {
-      fg[0] += 2000*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 20*CppAD::pow(vars[cte_start + t], 2);
       fg[0] += 2000*CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += CppAD::pow(vars[v_start + t] - ref_v, 2);
     }
 
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += 5*CppAD::pow(vars[delta_start + t], 2);
-      fg[0] += 5*CppAD::pow(vars[a_start + t], 2);
+      fg[0] += 2000*CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += CppAD::pow(vars[a_start + t], 2);
     }
 
     // Minimize the value gap between sequential actuations.
@@ -145,7 +145,7 @@ class FG_eval {
       fg[1 + psi_start + t] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
       fg[1 + v_start + t] = v1 - (v0 + a0 * dt);
       fg[1 + cte_start + t] =
-          cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
+          cte1 - ((y0 - f0) + (v0 * CppAD::sin(epsi0) * dt));
       fg[1 + epsi_start + t] =
           epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
     }
