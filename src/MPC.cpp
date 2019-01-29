@@ -10,9 +10,9 @@ using CppAD::AD;
 using Eigen::VectorXd;
 
 /**
- * The timestep length and duration
+ * TODO: Set the timestep length and duration
  */
-size_t N = 10;
+size_t N = 8;
 double dt = 0.15;
 
 // This value assumes the model presented in the classroom is used.
@@ -59,6 +59,27 @@ class FG_eval {
      *   the Solver function below.
      */
 
+    // Following code fragment is obtained from 
+    // https://github.com/edufford/CarND-MPC-Project-P10/blob/master/src/MPC.cpp#L54-L73
+
+    // Estimate endpoint of planned path using poly coeffs after N timesteps
+    // of delta T (x = v*t, y = f(x)).  Calculate the angle from the car's
+    // current heading (0 deg) to the endpoint of the planned path to use as a
+    // cost for difference from reference angle to be able to pull the path
+    // straighter across and cut corners in sharp turns to achieve higher speed
+    // and a better driving line.
+    const CppAD::AD<double> x_end = vars[v_start] * (N * dt);
+    const CppAD::AD<double> y_end = coeffs(0)
+                                    + coeffs(1)*x_end
+                                    + coeffs(2)*x_end*x_end
+                                    + coeffs(3)*x_end*x_end*x_end;
+
+    // Adjust reference speed to slow down in sharp turns using a simple
+    // correlation to the lateral distance y_end of the planned path's
+    // endpoint.
+    const CppAD::AD<double> ref_v_by_turn =
+                                (ref_v - 0.25 * CppAD::abs(y_end));
+
     // The cost is stored in the first element of `fg`.
     // Any additions to the cost should be added to `fg[0]`.
     fg[0] = 0;
@@ -67,9 +88,9 @@ class FG_eval {
 
     // The part of the cost based on the reference state.
     for (int t = 0; t < N; t++) {
-      fg[0] += 20*CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 2*CppAD::pow(vars[cte_start + t], 2);
       fg[0] += 2000*CppAD::pow(vars[epsi_start + t], 2);
-      fg[0] += CppAD::pow(vars[v_start + t] - ref_v, 2);
+      fg[0] += 500*CppAD::pow(vars[v_start + t] - ref_v_by_turn, 2);
     }
 
     // Minimize the use of actuators.
