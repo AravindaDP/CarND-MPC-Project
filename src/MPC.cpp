@@ -80,7 +80,7 @@ class FG_eval {
     // correlation to the lateral distance y_end of the planned path's
     // endpoint.
     const CppAD::AD<double> ref_v_by_turn =
-                                (ref_v - 0.25 * CppAD::abs(y_end));
+                                (ref_v - 0.1 * CppAD::abs(y_end));
 
     // The cost is stored in the first element of `fg`.
     // Any additions to the cost should be added to `fg[0]`.
@@ -90,16 +90,16 @@ class FG_eval {
 
     // The part of the cost based on the reference state.
     for (int t = 0; t < N; t++) {
-      fg[0] += 2*CppAD::pow(vars[cte_start + t], 2);
-      fg[0] += 2000*CppAD::pow(vars[epsi_start + t], 2);
+      fg[0] += CppAD::pow(vars[cte_start + t], 2);
+      fg[0] += 5000*CppAD::pow(vars[epsi_start + t], 2);
       fg[0] += 500*CppAD::pow(vars[v_start + t] - ref_v_by_turn, 2);
       // Difference from angle to end point of horizon
-      fg[0] += 2000*CppAD::pow(angle_end - vars[psi_start + t], 2);
+      fg[0] += 5000*CppAD::pow(angle_end - vars[psi_start + t], 2);
     }
 
     // Minimize the use of actuators.
     for (int t = 0; t < N - 1; t++) {
-      fg[0] += 2000*CppAD::pow(vars[delta_start + t], 2);
+      fg[0] += 20000*CppAD::pow(vars[delta_start + t], 2);
       fg[0] += CppAD::pow(vars[a_start + t], 2);
     }
 
@@ -158,6 +158,7 @@ class FG_eval {
       // This is also CppAD can compute derivatives and pass
       // these to the solver.
 
+      // Setup the rest of the model constraints
       // Recall the equations for the model:
       // x_[t+1] = x[t] + v[t] * cos(psi[t]) * dt
       // y_[t+1] = y[t] + v[t] * sin(psi[t]) * dt
@@ -180,7 +181,7 @@ class FG_eval {
 //
 // MPC class definition implementation.
 //
-MPC::MPC() {}
+MPC::MPC() {ave_latency_ms_=100;}
 MPC::~MPC() {}
 
 std::vector<double> MPC::Solve(const VectorXd &state, const VectorXd &coeffs) {

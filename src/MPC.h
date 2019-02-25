@@ -14,6 +14,8 @@ class MPC {
   // Return the first actuations.
   std::vector<double> Solve(const Eigen::VectorXd &state, 
                             const Eigen::VectorXd &coeffs);
+
+  double ave_latency_ms_; // stored ave estimated latency
 };
 
 #endif  // MPC_H

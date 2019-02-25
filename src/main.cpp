@@ -29,6 +29,10 @@ int main() {
 
   h.onMessage([&mpc](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length,
                      uWS::OpCode opCode) {
+    // Store time at start of processing received data for latency estimation
+    std::chrono::high_resolution_clock::time_point t_start =
+                                      std::chrono::high_resolution_clock::now();
+
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -48,6 +52,23 @@ int main() {
           double psi = j[1]["psi"];
           double v = j[1]["speed"];
           v *= 0.44704;
+
+          double steer_value = j[1]["steering_angle"]; // current steer (rad)
+          steer_value *= -1.0; // flip direction from sim to match motion eqn's
+          double throttle_value = j[1]["throttle"]; // current throttle [-1, 1]
+
+          // Adjust predicted veh position to be after estimated latency time
+          // using motion equations:
+          //   x = x + v * cos(psi) * dt
+          //   y = y + v * sin(psi) * dt
+          //   psi = psi + v / Lf * delta * dt
+          //   v = v + a * dt
+          const double Lf = 2.67;
+          const double latency = mpc.ave_latency_ms_ / 1000;
+          px = px + v * cos(psi) * latency;
+          py = py + v * sin(psi) * latency;
+          psi = psi + v / Lf * steer_value * latency;
+          v = v + throttle_value * latency;
 
           for(int i = 0; i < ptsx.size(); i++){
             //shift car reference angle to 90 degrees
@@ -80,8 +101,8 @@ int main() {
            */
           auto vars = mpc.Solve(state, coeffs);
 
-          double steer_value = vars[0];
-          double throttle_value = vars[1];
+          steer_value = vars[0];
+          throttle_value = vars[1];
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the 
@@ -141,8 +162,18 @@ int main() {
           //   around the track with 100ms latency.
           //
           // NOTE: REMEMBER TO SET THIS TO 100 MILLISECONDS BEFORE SUBMITTING.
-          //std::this_thread::sleep_for(std::chrono::milliseconds(100));
+          std::this_thread::sleep_for(std::chrono::milliseconds(100));
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
+
+          // Estimate actual ave latency (processing time + actuator latency)
+          auto cur_latency_ms =
+                  std::chrono::duration_cast<std::chrono::milliseconds>
+                  (std::chrono::high_resolution_clock::now() - t_start).count();
+
+          // Smooth stored latency with exponential moving average
+          constexpr int n_sm = 3;
+          mpc.ave_latency_ms_ = mpc.ave_latency_ms_ * (n_sm - 1)/n_sm
+                                 + cur_latency_ms * 1/n_sm;
         }  // end "telemetry" if
       } else {
         // Manual driving
