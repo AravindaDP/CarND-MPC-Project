@@ -63,7 +63,6 @@ int main() {
           //   y = y + v * sin(psi) * dt
           //   psi = psi + v / Lf * delta * dt
           //   v = v + a * dt
-          const double Lf = 2.67;
           const double latency = mpc.ave_latency_ms_ / 1000;
           px = px + v * cos(psi) * latency;
           py = py + v * sin(psi) * latency;
