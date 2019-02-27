@@ -17,7 +17,7 @@ double dt = 0.15;
 
 // NOTE: feel free to play around with this
 // or do something completely different
-double ref_v = 55;
+double ref_v = 45;
 
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
