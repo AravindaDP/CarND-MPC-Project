@@ -69,7 +69,7 @@ int main() {
           psi = psi + v / Lf * steer_value * latency;
           v = v + throttle_value * latency;
 
-          for(int i = 0; i < ptsx.size(); i++){
+          for(size_t i = 0; i < ptsx.size(); i++){
             //shift car reference angle to 90 degrees
             double shift_x = ptsx[i] - px;
             double shift_y = ptsy[i] - py;
@@ -119,7 +119,7 @@ int main() {
            * the vehicle's coordinate system the points in the simulator are 
            * connected by a Green line
            */
-          for(int i = 2; i < vars.size(); i++){
+          for(size_t i = 2; i < vars.size(); i++){
             if(i%2 == 0){
               mpc_x_vals.push_back(vars[i]);
             }
