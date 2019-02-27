@@ -24,7 +24,7 @@ The **motion model equations** are from the global kinematic model as provided b
 
 Note: [Equations from the Lesson 18](https://classroom.udacity.com/nanodegrees/nd013/parts/40f38239-66b6-46ec-ae68-03afd8a601c8/modules/f1820894-8322-4bb3-81aa-b26b3c6dcbaf/lessons/af4fcd4f-eb1f-43d8-82b3-17bb1e71695f/concepts/e88c2080-1abc-4800-a83c-83f52b2ca0c8) was used since equations presented in Lesson 19 were incorrect.
 
-![img](http://www.sciweavers.org/tex2img.php?eq=x_%7Bt%2B1%7D%20%3D%20x_t%20%2B%20v_t%20cos%28%5Cpsi_t%29%20%2A%20dt%5C%5Cy_%7Bt%2B1%7D%20%3D%20y_t%20%2B%20v_t%20sin%28%5Cpsi_t%29%20%2A%20dt%5C%5C%5Cpsi_%7Bt%2B1%7D%20%3D%20%5Cpsi_t%20%2B%20%5Cfrac%20%7Bv_t%7D%20%7B%20L_f%7D%20%5Cdelta%20%2A%20dt%5C%5Cv_%7Bt%2B1%7D%20%3D%20v_t%20%2B%20a_t%20%2A%20dt%5C%5Ccte_%7Bt%2B1%7D%20%3D%20y_t%20-%20f%28x_t%29%20%2B%20%28v_t%20%2A%20sin%28e%5Cpsi_t%29%20%2A%20dt%29%5C%5Ce%5Cpsi_%7Bt%2B1%7D%20%3D%20%5Cpsi_t%20-%20%5Cpsi%7Bdes%7D_t%20%2B%20%28%5Cfrac%7Bv_t%7D%20%7B%20L_f%7D%20%2A%20%5Cdelta_t%20%2A%20dt%29&bc=White&fc=Black&im=jpg&fs=12&ff=arev&edit=0)
+![img](./images/eqn.jpg)
 
 Where f(x<sub>t</sub>) is our reference line and ψdes<sub>t</sub> can be calculated as the tangential angle of the polynomial f evaluated at x<sub>t</sub>, arctan(f′(x<sub>t</sub>)). f′ is the derivative of the polynomial.
 
